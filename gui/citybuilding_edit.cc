@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2004 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -30,7 +30,7 @@
 
 
 // new tool definition
-tool_build_house_t citybuilding_edit_frame_t::haus_tool=tool_build_house_t();
+tool_build_house_t* citybuilding_edit_frame_t::haus_tool=new tool_build_house_t();
 char citybuilding_edit_frame_t::param_str[256];
 
 
@@ -40,7 +40,7 @@ static bool compare_building_desc(const building_desc_t* a, const building_desc_
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
-		
+
 static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
@@ -61,9 +61,9 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 {
 	rot_str[0] = 0;
 	desc = NULL;
-	haus_tool.set_default_param(NULL);
-	haus_tool.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
-	haus_tool.id = tool_t::general_tool[TOOL_BUILD_HOUSE]->id;
+	haus_tool->set_default_param(NULL);
+	haus_tool->cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
+	haus_tool->id = tool_t::general_tool[TOOL_BUILD_HOUSE]->id;
 
 	bt_res.init( button_t::square_state, "residential house", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_res.add_listener(this);
@@ -273,10 +273,10 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, desc->get_name() );
-		haus_tool.set_default_param(param_str);
-		welt->set_tool( &haus_tool, player );
+		haus_tool->set_default_param(param_str);
+		welt->set_tool( haus_tool, player );
 	}
-	else if(welt->get_tool(player->get_player_nr())==&haus_tool) {
+	else if(welt->get_tool(player->get_player_nr())==haus_tool) {
 		desc = NULL;
 		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
