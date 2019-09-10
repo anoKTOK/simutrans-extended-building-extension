@@ -63,20 +63,19 @@ public:
 };
 
 // alter land height tools
-class tool_raise_lower_base_t : public two_click_tool_t {
+class tool_raise_lower_base_t : public tool_t {
 protected:
 	bool is_dragging;
 	sint16 drag_height;
-	bool is_area_process;
 
 	const char* drag(player_t*, koord k, sint16 h, int &n, bool allow_deep_water);
 	virtual sint16 get_drag_height(koord k) = 0;
 	bool check_dragging();
 
 public:
-	tool_raise_lower_base_t(uint16 id) : two_click_tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_area_process(false) { offset = Z_GRID; one_click = true; }
+	tool_raise_lower_base_t(uint16 id) : tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0) { offset = Z_GRID; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
-	bool init(player_t* player) OVERRIDE { two_click_tool_t::init(player); is_dragging = false; return true; }
+	bool init(player_t*) OVERRIDE { is_dragging = false; return true; }
 	bool exit(player_t*) OVERRIDE { is_dragging = false; return true; }
 	/**
 	 * technically move is not network safe, however its implementation is:
@@ -98,11 +97,6 @@ public:
 	bool is_grid_tool() const {return true;}
 
 	bool update_pos_after_use() const OVERRIDE { return true; }
-
-	virtual char const* process(player_t* player, koord3d pos) { return ""; }
-	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE;
-	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
-	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE { return 2; };
 };
 
 class tool_raise_t : public tool_raise_lower_base_t {
@@ -110,7 +104,7 @@ public:
 	tool_raise_t() : tool_raise_lower_base_t(TOOL_RAISE_LAND) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Anheben", welt->get_settings().cst_alter_land); }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* process(player_t*, koord3d) OVERRIDE;
+	char const* work(player_t*, koord3d) OVERRIDE;
 	sint16 get_drag_height(koord k) OVERRIDE;
 };
 
@@ -119,7 +113,7 @@ public:
 	tool_lower_t() : tool_raise_lower_base_t(TOOL_LOWER_LAND) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Absenken", welt->get_settings().cst_alter_land); }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* process(player_t*, koord3d) OVERRIDE;
+	char const* work(player_t*, koord3d) OVERRIDE;
 	sint16 get_drag_height(koord k) OVERRIDE;
 };
 
@@ -527,21 +521,13 @@ public:
  * finally building name
  * @author prissi
  */
-class tool_build_house_t : public two_click_kartenboden_tool_t {
+class tool_build_house_t : public kartenboden_tool_t {
 public:
-	tool_build_house_t() : two_click_kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {one_click = true;}
+	tool_build_house_t() : kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Built random attraction"); }
 	bool init(player_t*) OVERRIDE;
-	char const* work(player_t*, koord);
+	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
-
-	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
-	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
-	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
-	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
-
-	// For co-existence with one_click mode
-	bool one_click;
 };
 
 /* build an (if param=NULL random) industry chain starting here *
