@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -30,7 +30,7 @@ static const char label_text[4][64] = {
 
 
 char station_building_select_t::default_str[260];
-tool_build_station_t station_building_select_t::tool=tool_build_station_t();
+tool_build_station_t* station_building_select_t::tool=new tool_build_station_t();
 
 
 station_building_select_t::station_building_select_t(const building_desc_t *desc) :
@@ -61,7 +61,7 @@ station_building_select_t::station_building_select_t(const building_desc_t *desc
 		base_offsets[0],                                         // 1st image if layout > 2
 	};
 
-	tool.id = tool_t::general_tool[TOOL_BUILD_STATION]->id;
+	tool->id = tool_t::general_tool[TOOL_BUILD_STATION]->id;
 	// image placeholder
 	for( sint16 i=0;  i<layout;  i++ ) {
 		for( sint16 j=0;  j<4;  j++ ) {
@@ -125,8 +125,8 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *comp,val
 		if(comp == &actionbutton[i]) {
 			static char default_str[1024];
 			sprintf( default_str, "%s,%i", desc->get_name(), i );
-			tool.set_default_param(default_str);
-			welt->set_tool( &tool, welt->get_active_player() );
+			tool->set_default_param(default_str);
+			welt->set_tool( tool, welt->get_active_player() );
 			destroy_win(this);
 		}
 	}
